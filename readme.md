@@ -31,11 +31,12 @@ Or you can run it from Maven directly using the Spring Boot Maven plugin. If you
 
 ## Building a Container
 
-There is a Dockerfile in the root directory so you can run:
+There is a Dockerfile in the root directory so you can either run:
 
 ```bash
-docker build -t spring-petclinic in your terminal or as part of the CI github actions workflow
+docker build -t spring-petclinic
 ```
+Within your terminal or as part of the CI github action workflow that exists.
 
 ## In case you find a bug/suggested improvement for Spring Petclinic
 
