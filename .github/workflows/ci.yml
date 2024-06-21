@@ -1,0 +1,44 @@
+name: CI/CD Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven
+
+    - name: Compile the code
+      run: mvn clean compile
+
+    - name: Run tests
+      run: mvn test
+
+    - name: Package the project as a runnable Docker image
+      run: |
+        docker build -t spring-petclinic .
+        docker tag spring-petclinic ajoanes/spring-petclinic
+        echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+        docker push ajoanes/spring-petclinic
+
+    #- name: Deploy to Artifactory
+    #  env:
+    #    ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+    #    ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+    #  run: mvn deploy
